@@ -63,7 +63,7 @@ export class BufferPool implements Observer<Page> {
    */
   update(page: Page): void {
     const info = this.buffers.get(page.pageId);
-    if (info && info.buffer === page.data) {
+    if (info && info.buffer === page.buffer) {
       info.modified = true;
     }
   }
@@ -117,7 +117,7 @@ export class BufferPool implements Observer<Page> {
     if (!page) return undefined;
 
     this.buffers.set(pageId, {
-      buffer: page.data,
+      buffer: page.buffer,
       pageId: pageId,
       modified: false,
     });

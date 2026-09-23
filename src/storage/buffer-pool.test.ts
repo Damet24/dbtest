@@ -36,7 +36,7 @@ describe("BufferPool", () => {
     const page = await pool.getPage(0);
 
     expect(page).toBeInstanceOf(Page);
-    expect(page!.data).toHaveLength(PAGE_SIZE);
+    expect(page!.buffer).toHaveLength(PAGE_SIZE);
     expect(pool.buffers.size).toBe(1);
   });
 
@@ -47,7 +47,7 @@ describe("BufferPool", () => {
     const first = await pool.getPage(0);
     const second = await pool.getPage(0);
 
-    expect(second!.data).toBe(first!.data);
+    expect(second!.buffer).toBe(first!.buffer);
     expect(pool.buffers.size).toBe(1);
   });
 
@@ -132,7 +132,7 @@ describe("BufferPool", () => {
     pool = new BufferPool(1, file);
     await pool.pager.open();
     const page = await pool.getPage(0);
-    page!.data.writeUInt32LE(999, 0);
+    page!.buffer.writeUInt32LE(999, 0);
     page!.markModified();
 
     const spy = vi.spyOn(pool.pager, "writePage");
@@ -194,13 +194,13 @@ describe("BufferPool", () => {
       pool = new BufferPool(3, file);
       await pool.pager.open();
       const page = await pool.getPage(0);
-      page!.data.writeUInt32LE(4242, 0);
+      page!.buffer.writeUInt32LE(4242, 0);
       page!.markModified();
 
       await pool.flush();
 
       const persisted = await pool.pager.readPage(0);
-      expect(persisted!.data.readUInt32LE(0)).toBe(4242);
+      expect(persisted!.buffer.readUInt32LE(0)).toBe(4242);
     });
 
     it("no vuelve a escribir si no hay buffers modificados", async () => {

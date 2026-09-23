@@ -69,7 +69,7 @@ export class Pager {
 
     const offset = page.pageId * PAGE_SIZE;
 
-    await this.file.write(page.data, 0, PAGE_SIZE, offset);
+    await this.file.write(page.buffer, 0, PAGE_SIZE, offset);
 
     return true;
   }

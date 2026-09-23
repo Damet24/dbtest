@@ -45,8 +45,8 @@ describe("Pager", () => {
 
     expect(page).toBeInstanceOf(Page);
     expect(page!.pageId).toBe(0);
-    expect(page!.data).toHaveLength(PAGE_SIZE);
-    expect(page!.data.every((byte) => byte === 0)).toBe(true);
+    expect(page!.buffer).toHaveLength(PAGE_SIZE);
+    expect(page!.buffer.every((byte) => byte === 0)).toBe(true);
 
     await pager.close();
   });
@@ -56,11 +56,11 @@ describe("Pager", () => {
     await pager.open();
 
     const page = new Page(0, Buffer.alloc(PAGE_SIZE));
-    page.data.write("hola mundo", 0, "utf8");
+    page.buffer.write("hola mundo", 0, "utf8");
     await expect(pager.writePage(page)).resolves.toBe(true);
 
     const read = await pager.readPage(0);
-    expect(read!.data.subarray(0, 10).toString("utf8")).toBe("hola mundo");
+    expect(read!.buffer.subarray(0, 10).toString("utf8")).toBe("hola mundo");
 
     await pager.close();
   });
@@ -69,14 +69,14 @@ describe("Pager", () => {
     const first = new Pager(file);
     await first.open();
     const page = new Page(0, Buffer.alloc(PAGE_SIZE));
-    page.data.writeUInt32LE(123456, 0);
+    page.buffer.writeUInt32LE(123456, 0);
     await first.writePage(page);
     await first.close();
 
     const second = new Pager(file);
     await second.open();
     const read = await second.readPage(0);
-    expect(read!.data.readUInt32LE(0)).toBe(123456);
+    expect(read!.buffer.readUInt32LE(0)).toBe(123456);
     await second.close();
   });
 
@@ -87,8 +87,8 @@ describe("Pager", () => {
     await pager.writePage(new Page(0, Buffer.alloc(PAGE_SIZE, 1)));
     await pager.writePage(new Page(1, Buffer.alloc(PAGE_SIZE, 2)));
 
-    expect((await pager.readPage(0))!.data.readUInt8(0)).toBe(1);
-    expect((await pager.readPage(1))!.data.readUInt8(0)).toBe(2);
+    expect((await pager.readPage(0))!.buffer.readUInt8(0)).toBe(1);
+    expect((await pager.readPage(1))!.buffer.readUInt8(0)).toBe(2);
 
     await pager.close();
   });

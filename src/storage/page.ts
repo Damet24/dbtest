@@ -1,4 +1,5 @@
 import type { Observer, Subject } from "../core/observer.js";
+import { PageHeader, type PageType } from "./page-header.js";
 
 /**
  * A Page is the unit of transfer exposed to higher layers: a fixed-size block
@@ -19,7 +20,10 @@ export class Page implements Subject<Page> {
   readonly pageId: number;
 
   /** The raw bytes backing this page. */
-  readonly data: Buffer<ArrayBuffer>;
+  private readonly data: Buffer<ArrayBuffer>;
+
+  /** Header view over {@link data}. */
+  private readonly header: PageHeader;
 
   /** Observers attached to this page. */
   private observers: Observer<Page>[] = [];
@@ -33,6 +37,17 @@ export class Page implements Subject<Page> {
   constructor(pageId: number, data: Buffer<ArrayBuffer>) {
     this.pageId = pageId;
     this.data = data;
+    this.header = new PageHeader(data);
+  }
+
+  /**
+   * The raw bytes backing this page. It is the public entry point for the
+   * storage layer (Pager, BufferPool) and for callers that need to read or
+   * write bytes directly with the codecs. Reading it does not mark the page as
+   * modified; call {@link markModified} after mutating it.
+   */
+  get buffer(): Buffer<ArrayBuffer> {
+    return this.data;
   }
 
   /**
@@ -69,5 +84,40 @@ export class Page implements Subject<Page> {
    */
   markModified(): void {
     this.notify();
+  }
+
+  // metodo de prueba, record no será any.
+  async insertRecord(record: any) {
+    console.log(record);
+    return new Promise((resolve) => {
+      setTimeout(resolve, 1000);
+    });
+  }
+
+  get pageType() {
+    return this.header.pageType;
+  }
+
+  set pageType(value: PageType) {
+    this.header.pageType = value;
+    this.markModified();
+  }
+
+  get recordCount(): number {
+    return this.header.recordCount;
+  }
+
+  set recordCount(value: number) {
+    this.header.recordCount = value;
+    this.markModified();
+  }
+
+  get cellContentStart(): number {
+    return this.header.cellContentStart;
+  }
+
+  set cellContentStart(value: number) {
+    this.header.cellContentStart = value;
+    this.markModified();
   }
 }
