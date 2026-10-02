@@ -1,6 +1,12 @@
-import { uint32 } from "../src/serialization/uint32";
+import { BufferPool, DiskManager, PageType } from "../src/index";
 
-const buffer = Buffer.alloc(8);
-uint32.serialize(12345, buffer, 4);
-console.log(buffer);
-console.log(uint32.deserialize(buffer, 4));
+const dm = await DiskManager.create("test.db");
+const bp = new BufferPool(20, dm);
+
+const p = await bp.getPage(0);
+
+p.pageType = PageType.InteriorTable;
+console.log(p.cellCount)
+p.cellCount = 1;
+console.log(p.cellCount)
+console.log(p)
